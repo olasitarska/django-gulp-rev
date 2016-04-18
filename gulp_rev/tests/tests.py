@@ -33,11 +33,6 @@ class gulp_revTestCase(TestCase):
         mapping = gulp_rev._get_mapping()
         self.assertIn(self.path, mapping)
 
-    @override_settings(STATIC_ROOT='notexist')
-    def test_get_mapping_fails(self):
-        with self.assertRaises(IOError):
-            mapping = gulp_rev._get_mapping()
-
     @override_settings(STATIC_ROOT=os.path.dirname(os.path.realpath(__file__)))
     def test_production_url(self):
         url = gulp_rev.production_url(self.path, '/static/'+self.path)
@@ -62,3 +57,10 @@ class gulp_revTestCase(TestCase):
         url = gulp_rev.static_rev(self.path)
         mapping = gulp_rev._get_mapping()
         self.assertEqual('/teststatic/'+mapping[self.path], url)
+
+    @override_settings(DJANGO_GULP_REV_PATH='notexist.json', STATIC_URL='/teststatic/',
+        DEBUG=False)
+    def test_mapping_file_doesnt_exist(self):
+        url = gulp_rev.static_rev(self.path)
+        self.assertIn('/teststatic/'+self.path+'?', url)
+        self.assertEqual(len('/teststatic/'+self.path+'?')+8, len(url))

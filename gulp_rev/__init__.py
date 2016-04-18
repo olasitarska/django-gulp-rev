@@ -25,9 +25,12 @@ def _get_mapping():
         manifest_path = getattr(settings,
             'DJANGO_GULP_REV_PATH',
             os.path.join(getattr(settings, 'STATIC_ROOT', ''), 'rev-manifest.json'))
-
-        with open(manifest_path) as manifest_file:
-            _STATIC_MAPPING = json.load(manifest_file)
+        
+        try:
+            with open(manifest_path) as manifest_file:
+                _STATIC_MAPPING = json.load(manifest_file)
+        except IOError:
+            return None
 
     return _STATIC_MAPPING
 
@@ -45,9 +48,12 @@ def production_url(path, original):
     our mapping.
     """
     mapping = _get_mapping()
-    if path in mapping:
-        return original.replace(path, mapping[path])
-    return original
+    if mapping:
+        if path in mapping:
+            return original.replace(path, mapping[path])
+        return original
+    else:
+        return dev_url(original)
 
 def static_rev(path):
     """
