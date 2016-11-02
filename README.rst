@@ -31,7 +31,7 @@ Quick start
 
 2. Load "rev" in your templates:
 
-    {% load 'rev' %}
+    {% load rev %}
 
 3. Use in your templates like this:
 
